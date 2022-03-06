@@ -2,10 +2,11 @@ import * as wasm from "orbits";
 
 let solSys = wasm.SolSystem.new();
 
-let zf = 30;
+let zf = 15;
+let centerBody = "Sol"
 
 // time step of the simulation, in days
-let step = 10  
+let step = .1  
 
 // let positions = sol_sys.positions();
 
@@ -36,24 +37,46 @@ const drawSystem = () => {
     let year = date.getUTCFullYear();
 
     let coords = position.coords
-
     let names = position.names
+    let zipped = zip(coords, names);
+
+    let centerX = 0
+    let centerY = 0
+    for (let [c, name] of zipped) {
+        if (name === centerBody) {
+            centerX = c[0];
+            centerY = c[1];
+            break;
+        }
+    }
 
     ctx.fillStyle = "white";
-    ctx.strokeStyle = "#FFFFFF50";
+    ctx.strokeStyle = "#FFFFFF50"
     ctx.font = "15px sans-serif"
 
     ctx.fillText(`Year: ${year}`, canvas.width - 95, 20)
     ctx.fillText(`Month: ${month}`, canvas.width - 95, 40)
     ctx.fillText(`Day: ${day}`, canvas.width - 95, 60)
 
+    ctx.strokeStyle = "#FFFFFFFF"
+    let one_au = 1.0*zf;
+    ctx.moveTo(10, canvas.height - 10);
+    ctx.lineTo(10 + one_au, canvas.height - 10)
+    ctx.stroke()
+    ctx.fillText("1 AU", 20, canvas.height - 20)
+    ctx.strokeStyle = "#FFFFFF50"
+
     let i = 0
-    for (let [c, name] of zip(coords, names)) {
+    for (let [c, name] of zipped) {
         ctx.fillStyle = name === "Sol" ? "yellow" : "white";
 
-        let x = c[0]*zf+(canvas.width / 2)
-        let y = -c[1]*zf+(canvas.height / 2);
+        let x = c[0]*zf+(canvas.width / 2)-centerX*zf
+        let y = -c[1]*zf+(canvas.height / 2)- (-centerY*zf);
         ctx.fillText(name, 10, 20+20*i)
+
+        // if (x < 0 || x > canvas.width || y < 0 || y > canvas.width) {
+        //     break;
+        // }
         ctx.moveTo(50, 20+20*i)
         ctx.lineTo(x,y)
         ctx.stroke();
